@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>riddKasep AI — Your Personal AI Assistant</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Marked.js for Markdown Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- Highlight.js for Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        obsidian: '#06070a',
+                        surface: '#0e0f15',
+                        surfaceHover: '#151722',
+                        neonBlue: '#00f0ff',
+                        electricPurple: '#8b5cf6',
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-6px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg-primary: #07070a;
+            --bg-secondary: #0e0f15;
+            --neon-blue: #00f0ff;
+            --electric-purple: #8b5cf6;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: #f4f4f5;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.25);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 240, 255, 0.45);
+        }
+
+        .brand-gradient-text {
+            background: linear-gradient(135deg, #00f0ff 0%, #3b82f6 45%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-border-glow {
+            position: relative;
+        }
+        .brand-border-glow::before {
+            content: "";
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.4), rgba(139, 92, 246, 0.4));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .glass-panel {
+            background: rgba(14, 15, 21, 0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .markdown-body {
+            line-height: 1.7;
+            font-size: 0.95rem;
+            color: #e4e4e7;
+            word-wrap: break-word;
+        }
+        .markdown-body p {
+            margin-bottom: 0.85rem;
+        }
+        .markdown-body p:last-child {
+            margin-bottom: 0;
+        }
+        .markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4 {
+            color: #ffffff;
+            font-weight: 700;
+            margin-top: 1.25rem;
+            margin-bottom: 0.6rem;
+        }
+        .markdown-body h1 { font-size: 1.4rem; }
+        .markdown-body h2 { font-size: 1.2rem; }
+        .markdown-body h3 { font-size: 1.05rem; }
+        .markdown-body ul, .markdown-body ol {
+            margin-left: 1.4rem;
+            margin-bottom: 0.9rem;
+        }
+        .markdown-body ul { list-style-type: disc; }
+        .markdown-body ol { list-style-type: decimal; }
+        .markdown-body li { margin-bottom: 0.35rem; }
+        .markdown-body strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .markdown-body a {
+            color: #00f0ff;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .markdown-body blockquote {
+            border-left: 3px solid #8b5cf6;
+            padding-left: 1rem;
+            margin: 0.85rem 0;
+            color: #a1a1aa;
+            background: rgba(139, 92, 246, 0.06);
+            padding-top: 0.4rem;
+            padding-bottom: 0.4rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+        .markdown-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            display: block;
+        }
+        .markdown-body th, .markdown-body td {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 0.55rem 0.8rem;
+            text-align: left;
+        }
+        .markdown-body th {
+            background: rgba(139, 92, 246, 0.15);
+            color: #fff;
+        }
+        .markdown-body :not(pre) > code {
+            background: rgba(0, 240, 255, 0.1);
+            color: #67e8f9;
+            padding: 0.15rem 0.4rem;
+            border-radius: 0.375rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85em;
+            border: 1px solid rgba(0, 240, 255, 0.18);
+        }
+
+        .code-block-wrapper {
+            margin: 1rem 0;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            background: #0a0b10;
+        }
+        .code-block-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0.9rem;
+            background: #131520;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 0.75rem;
+            color: #a1a1aa;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .code-block-wrapper pre {
+            margin: 0 !important;
+            padding: 1rem !important;
+            overflow-x: auto;
+            background: transparent !important;
+            font-size: 0.84rem;
+            line-height: 1.55;
+        }
+
+        .voice-wave span {
+            display: inline-block;
+            width: 3px;
+            height: 12px;
+            margin: 0 1.5px;
+            background: #00f0ff;
+            border-radius: 999px;
+            animation: wave 1s infinite ease-in-out;
+        }
+        .voice-wave span:nth-child(2) { animation-delay: 0.15s; background: #3b82f6; }
+        .voice-wave span:nth-child(3) { animation-delay: 0.3s; background: #8b5cf6; }
+        .voice-wave span:nth-child(4) { animation-delay: 0.45s; background: #a855f7; }
+        @keyframes wave {
+            0%, 100% { height: 6px; }
+            50% { height: 18px; }
+        }
+
+        .streaming-cursor::after {
+            content: "▋";
+            display: inline-block;
+            color: #00f0ff;
+            animation: blink 0.8s infinite;
+            margin-left: 3px;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .floating-text-crisp {
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.92), 0 0 1px rgba(0, 0, 0, 0.95);
+        }
+        .floating-bubble-shadow {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 22px var(--floating-glow, rgba(0, 240, 255, 0.4));
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col bg-obsidian text-zinc-100 select-none sm:select-auto">
+
+    <!-- Ambient Background Glows -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="absolute -top-32 -left-32 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px]"></div>
+        <div class="absolute top-1/3 -right-32 w-96 h-96 bg-purple-600/10 rounded-full blur-[130px]"></div>
+        <div class="absolute -bottom-32 left-1/3 w-80 h-80 bg-blue-600/10 rounded-full blur-[120px]"></div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Main App Layout -->
+    <div class="relative z-10 flex h-full w-full overflow-hidden">
+
+        <!-- Mobile Sidebar Backdrop -->
+        <div id="sidebar-backdrop" onclick="toggleSidebar(false)" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-30 hidden lg:hidden transition-opacity"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-72 bg-[#0b0c12]/95 lg:bg-[#0b0c12]/90 backdrop-blur-xl border-r border-white/[0.07] flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-out">
+
+            <!-- Brand Header -->
+            <div class="p-4 flex items-center justify-between border-b border-white/[0.06]">
+                <div onclick="navigateTo('home')" class="flex items-center gap-3 cursor-pointer group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400/20 via-blue-500/20 to-purple-600/20 border border-cyan-400/30 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.18)] group-hover:shadow-[0_0_25px_rgba(139,92,246,0.35)] transition-all">
+                        <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="rkGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="#00F0FF"/>
+                                    <stop offset="50%" stop-color="#3B82F6"/>
+                                    <stop offset="100%" stop-color="#A855F7"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M16 3L27 9.5V22.5L16 29L5 22.5V9.5L16 3Z" stroke="url(#rkGrad)" stroke-width="2.2" stroke-linejoin="round"/>
+                            <path d="M11 20V11H15.5C17.433 11 19 12.3431 19 14C19 15.6569 17.433 17 15.5 17H11M15.5 17L19.5 21M21.5 11V21" stroke="url(#rkGrad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="font-extrabold text-lg tracking-tight brand-gradient-text block leading-none">riddKasep AI</span>
+                        <span class="text-[10px] uppercase tracking-widest text-zinc-400 font-medium mt-1 block">Neural Studio</span>
+                    </div>
+                </div>
+                <button onclick="toggleSidebar(false)" class="lg:hidden p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- New Chat CTA Button -->
+            <div class="p-3.5">
+                <button onclick="startNewChat()" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-500/20 via-blue-600/20 to-purple-600/20 hover:from-cyan-500/30 hover:to-purple-600/30 border border-cyan-400/30 text-white font-medium text-sm flex items-center justify-between transition-all shadow-[0_0_20px_rgba(0,240,255,0.08)] group">
+                    <span class="flex items-center gap-2.5">
+                        <i data-lucide="plus-circle" class="w-4 h-4 text-cyan-400 group-hover:rotate-90 transition-transform duration-300"></i>
+                        New Chat
+                    </span>
+                    <kbd class="text-[10px] px-1.5 py-0.5 rounded bg-black/40 text-zinc-400 border border-white/10">Ctrl+K</kbd>
+                </button>
+            </div>
+
+            <!-- Primary Navigation Menu -->
+            <nav class="px-3 space-y-1">
+                <button data-nav="home" onclick="navigateTo('home')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-zinc-400 hover:text-white hover:bg-white/[0.05]">
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                    <span>Home</span>
+                </button>
+                <button data-nav="chat" onclick="navigateTo('chat')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-zinc-400 hover:text-white hover:bg-white/[0.05]">
+                    <i data-lucide="message-square-sparkles" class="w-4 h-4"></i>
+                    <span>Chat AI</span>
+                </button>
+                <button data-nav="explore" onclick="navigateTo('explore')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-zinc-400 hover:text-white hover:bg-white/[0.05]">
+                    <i data-lucide="compass" class="w-4 h-4"></i>
+                    <span>Explore</span>
+                </button>
+                <button data-nav="history" onclick="navigateTo('history')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-zinc-400 hover:text-white hover:bg-white/[0.05]">
+                    <i data-lucide="history" class="w-4 h-4"></i>
+                    <span>History</span>
+                </button>
+                <button data-nav="permissions" onclick="navigateTo('permissions')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-zinc-400 hover:text-white hover:bg-white/[0.05]">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+                    <span>Permission Manager</span>
+                </button>
+                <button data-nav="settings" onclick="navigateTo('settings')" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-zinc-400 hover:text-white hover:bg-white/[0.05]">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                    <span>Settings</span>
+                </button>
+            </nav>
+
+            <!-- Recent Conversations Quick List -->
+            <div class="mt-5 px-4 flex items-center justify-between">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Percakapan Terbaru</span>
+                <button onclick="navigateTo('history')" class="text-[11px] text-cyan-400 hover:underline">Lihat semua</button>
+            </div>
+            <div id="sidebar-recent-chats" class="flex-1 overflow-y-auto px-3 py-2 space-y-1"></div>
+
+            <!-- User Profile & Status Footer -->
+            <div class="p-3.5 border-t border-white/[0.06] bg-black/20">
+                <div onclick="openAuthModal()" class="flex items-center justify-between p-2 rounded-xl hover:bg-white/[0.05] cursor-pointer transition-colors">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div id="user-avatar" class="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center font-bold text-xs text-white shrink-0">
+                            RK
+                        </div>
+                        <div class="min-w-0">
+                            <p id="user-display-name" class="text-sm font-semibold text-white truncate">Guest Explorer</p>
+                            <p id="api-connection-badge" class="text-[11px] text-emerald-400 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                AI Engine Ready
+                            </p>
+                        </div>
+                    </div>
+                    <i data-lucide="chevrons-up-down" class="w-4 h-4 text-zinc-500 shrink-0"></i>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace Container -->
+        <main class="flex-1 flex flex-col h-full min-w-0 relative overflow-hidden">
+
+            <!-- Top Header Bar -->
+            <header class="h-14 px-4 lg:px-6 border-b border-white/[0.06] bg-[#07070a]/80 backdrop-blur-md flex items-center justify-between shrink-0 z-20">
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleSidebar(true)" class="lg:hidden p-2 -ml-2 rounded-xl text-zinc-300 hover:text-white hover:bg-white/5">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <span id="header-page-title" class="font-semibold text-sm sm:text-base text-white">Home</span>
+                        <span class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                            <i data-lucide="sparkles" class="w-3 h-3"></i>
+                            riddKasep Core v3.1
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button id="header-floating-toggle" onclick="toggleFloatingEnabledFromHeader()" title="Aktifkan/Nonaktifkan Floating AI" class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500/25 transition-all">
+                        <span id="header-floating-dot" class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                        <span class="hidden md:inline">Floating AI</span>
+                        <span id="header-floating-state" class="text-[10px] uppercase font-bold">ON</span>
+                    </button>
+
+                    <div id="active-mode-pill" class="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-purple-500/15 text-purple-300 border border-purple-500/25">
+                        <i data-lucide="bot" class="w-3.5 h-3.5"></i>
+                        <span id="active-mode-label">Mode: Smart Assistant</span>
+                    </div>
+
+                    <div id="network-status-pill" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/25">
+                        <span id="network-status-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        <span id="network-status-label">Online</span>
+  
